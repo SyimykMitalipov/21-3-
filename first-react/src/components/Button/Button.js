@@ -8,5 +8,3 @@ const Button = ({ children, onClick, id }) => {
 
 export default Button
 
-
-// rafce

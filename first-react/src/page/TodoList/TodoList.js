@@ -8,6 +8,7 @@ const TodoList = () => {
     const [ isShow, setIsShow ] = useState(false);
     const [ newTitle, setNewTitle ] = useState('');
     const [ search, setSearch ] = useState('');
+    const [ currentEdit, setCurrentEdit ] = useState();
     const [ list, setList ]  = useState([
         {
             id:1 , 
@@ -43,9 +44,25 @@ const TodoList = () => {
     const handleChangeText = (event) => {
         setNewTitle(event.target.value);
     }
-    const handleSearch = (event) => {
-        setSearch(event.target.value)
+    const handleDelete = (id) => {
+        const filtered = list.filter(todo => todo.id !== id)
+        setList([...filtered])
     }
+    const handleSearch = (event) => {
+        setSearch(event.target.value);
+    }
+    const handleEdit = (editTodo) => {
+        const editList = list.map(todo => {
+            if(todo.id === editTodo.id) {
+                return { ...todo, title: editTodo.title }
+            }
+            return todo;
+        })
+        setList([...editList]);
+        setCurrentEdit()
+    }
+    const resultSearch = list.filter(todo => todo.title.toLowerCase().includes(search.toLowerCase()));
+
     return (
         <div className={classes.wrapper}>
             <Button onClick={handleShow}>
@@ -70,7 +87,14 @@ const TodoList = () => {
             </Button>
             <button onClick={handleShow}>Close</button>
             </Modal> }
-            <List list={list} handleDone={handleDone} />
+            <List 
+            list={resultSearch} 
+            handleChangeCurrent={setCurrentEdit}
+            handleDone={handleDone} 
+            handleDelete={handleDelete}
+            currentEdit={currentEdit}
+            handleEdit={handleEdit}
+            />
         </div>
     )
 }
