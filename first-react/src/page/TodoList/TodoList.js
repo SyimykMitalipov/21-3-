@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
 import classes from './todolist.module.css';
@@ -9,59 +9,83 @@ const TodoList = () => {
     const [ newTitle, setNewTitle ] = useState('');
     const [ search, setSearch ] = useState('');
     const [ currentEdit, setCurrentEdit ] = useState();
-    const [ list, setList ]  = useState([
-        {
-            id:1 , 
-            title: 'coding', 
-            completed: false
-        },
-        {
-            id:2,
-            title: 'eat', 
-            completed: false
-        },
-        {
-            id:3,
-            title: 'sleep', 
-            completed: false
-        }
-    ])
-          
+    //// list of Todo
+    const [ todoList, setTodoList ] = useState([])
+        
+    
     const handleShow = () => setIsShow(!isShow);
+    /// fc for add new todos;
+
     
     const handleAdd = () => {
-        setList((prevTodo) => {
-            return [ ...prevTodo, { id: list.length + 1 , title: newTitle, completed: false  } ]
+        setTodoList((prevTodo) => {
+            return [ ...prevTodo, { id: todoList.length + 1 , title: newTitle, completed: false  } ]
         })
         setNewTitle('')
         handleShow()
     }
+
+    // function for change completed of todo;
     const handleDone = (id) => {
-    const currentIndex = list.findIndex((todo) => todo.id === id);
-       list[currentIndex].completed = !list[currentIndex].completed;
-       setList([...list]);
+    const currentIndex = todoList.findIndex((todo) => todo.id === id);
+       todoList[currentIndex].completed = !todoList[currentIndex].completed;
+       setTodoList([...todoList]);
     } 
+
+    //// 
     const handleChangeText = (event) => {
         setNewTitle(event.target.value);
     }
+
+    //// delete todo with id;
     const handleDelete = (id) => {
-        const filtered = list.filter(todo => todo.id !== id)
-        setList([...filtered])
+        const filtered = todoList.filter(todo => todo.id !== id)
+        setTodoList([...filtered])
     }
+    ////
     const handleSearch = (event) => {
         setSearch(event.target.value);
     }
+
+    /// edit todo with id and new Text;
     const handleEdit = (editTodo) => {
-        const editList = list.map(todo => {
+        const editList = todoList.map(todo => {
             if(todo.id === editTodo.id) {
                 return { ...todo, title: editTodo.title }
             }
             return todo;
         })
-        setList([...editList]);
+        setTodoList([...editList]);
         setCurrentEdit()
     }
-    const resultSearch = list.filter(todo => todo.title.toLowerCase().includes(search.toLowerCase()));
+
+    /// variable for search result;
+    const resultSearch = todoList.filter(todo => todo.title.toLowerCase().includes(search.toLowerCase()));
+ // любое обновление
+    // useEffect(() => {
+
+    // })
+    //// Получаем список из нашего localStorage
+    useEffect(() => {
+        console.log('render1');
+       const myLocalList = JSON.parse(localStorage.getItem('todoList')); // получение списка из хранилище
+       if(myLocalList?.length !== 0) { // проверка на длину массива
+           setTodoList(myLocalList);
+       }
+       
+    },[]) // чтобы срабатывал один раз при фазе mounting(didMount);
+
+
+    //// Записывает иземенения в localStorage;
+    useEffect(() => {
+        console.log('render 2');
+    localStorage.setItem('todoList', JSON.stringify(todoList)) // запись
+    return () => {
+        
+    }
+    }, [todoList]) // отслеживаем за todoList состоянием,
+
+
 
     return (
         <div className={classes.wrapper}>
