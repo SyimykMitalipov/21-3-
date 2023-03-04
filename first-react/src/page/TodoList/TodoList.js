@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
 import classes from './todolist.module.css';
 import Modal from "../../components/Modal/Modal";
 import List from "../../components/List/List";
+import Pagination from "../../components/Pagination/Pagination";
 const TodoList = () => {
+    const baseURL = 'https://jsonplaceholder.typicode.com/todos';
     const [ isShow, setIsShow ] = useState(false);
     const [ newTitle, setNewTitle ] = useState('');
     const [ search, setSearch ] = useState('');
     const [ currentEdit, setCurrentEdit ] = useState();
+    const [ page, setPage ] = useState(1);
     //// list of Todo
-    const [ todoList, setTodoList ] = useState([])
+    const [ todoList, setTodoList ] = useState([]);
         
     
     const handleShow = () => setIsShow(!isShow);
@@ -59,6 +63,16 @@ const TodoList = () => {
         setCurrentEdit()
     }
 
+    const handleNext = () => {
+        setPage(prev => prev + 1)
+    }
+    const handlePrev = ( ) => {
+        if(page === 1) {
+            return;
+        }
+        setPage(prev => prev - 1);
+    }
+
     /// variable for search result;
     const resultSearch = todoList.filter(todo => todo.title.toLowerCase().includes(search.toLowerCase()));
  // любое обновление
@@ -66,25 +80,46 @@ const TodoList = () => {
 
     // })
     //// Получаем список из нашего localStorage
-    useEffect(() => {
-        console.log('render1');
-       const myLocalList = JSON.parse(localStorage.getItem('todoList')); // получение списка из хранилище
-       if(myLocalList?.length !== 0) { // проверка на длину массива
-           setTodoList(myLocalList);
-       }
+    // useEffect(() => {
+    //     console.log('render1');
+    //    const myLocalList = JSON.parse(localStorage.getItem('todoList')); // получение списка из хранилище
+    //    if(myLocalList?.length !== 0) { // проверка на длину массива
+    //        setTodoList(myLocalList);
+    //    }
        
-    },[]) // чтобы срабатывал один раз при фазе mounting(didMount);
+    // },[]) // чтобы срабатывал один раз при фазе mounting(didMount);
 
 
     //// Записывает иземенения в localStorage;
-    useEffect(() => {
-        console.log('render 2');
-    localStorage.setItem('todoList', JSON.stringify(todoList)) // запись
-    return () => {
+    // useEffect(() => {
+    //     console.log('render 2');
+    // localStorage.setItem('todoList', JSON.stringify(todoList)) // запись
+    // return () => {
         
-    }
-    }, [todoList]) // отслеживаем за todoList состоянием,
+    // }
+    // }, [todoList]) // отслеживаем за todoList состоянием,
 
+
+
+    // get todos from API;
+
+    const handleGet = async(page) => {
+        try {
+            const {  data } = await axios.get(baseURL , {
+                params: {
+                    _limit: 10,
+                    _page: page
+                }
+            });
+        setTodoList(data);
+ 
+        }catch(e) {
+         console.log(e);
+        }
+    } 
+    useEffect(() => {
+       handleGet(page);
+    }, [page])
 
 
     return (
@@ -119,6 +154,10 @@ const TodoList = () => {
             currentEdit={currentEdit}
             handleEdit={handleEdit}
             />
+            <Pagination 
+            handleNext={handleNext}
+            handlePrev={handlePrev}
+            page={page} /> 
         </div>
     )
 }

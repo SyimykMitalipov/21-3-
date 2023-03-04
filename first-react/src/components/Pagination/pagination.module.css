@@ -1,0 +1,16 @@
+
+
+.pagination {
+    width: 500px;
+    height: 300px;
+    border: 1px solid red;
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+}
+.paginationBlock {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 10px;
+}
